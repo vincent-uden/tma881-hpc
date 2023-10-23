@@ -1,5 +1,8 @@
+#define _POSIX_SOURCE
+
 #include <stdio.h>
 #include <stdlib.h>
+#include <sys/stat.h>
 
 #include "ppm.h"
 #include "cli.h"
@@ -18,6 +21,12 @@ int main(int argc, char** argv) {
     char* color_scheme = generate_attractor_scheme(N_COLORS);
 
     FILE* out = fopen("precomputed.ppm", "w");
+    struct stat stats;
+    fstat(fileno(out), &stats);
+
+    printf("BUFSIZ is %d, but optimal block size is %ld\n", BUFSIZ, stats.st_blksize);
+
+    setvbuf(out, NULL, _IOFBF, stats.st_blksize);
 
     for (size_t i = 0; i < N; ++i) {
         fwrite(color_scheme + attractors[i] * 12, sizeof(char), 12, out);
