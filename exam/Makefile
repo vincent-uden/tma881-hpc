@@ -7,3 +7,7 @@ clean :
 naive : ./src/ppm.c ./src/cli.c ./src/naive.c
 	mkdir -p build
 	gcc -o ./build/$@ $^ $(CFLAGS)
+
+precompute : ./src/ppm.c ./src/cli.c ./src/precompute.c
+	mkdir -p build
+	gcc -o ./build/$@ $^ $(CFLAGS)
