@@ -1,8 +1,6 @@
-#define _POSIX_SOURCE
-
 #include <stdio.h>
 #include <stdlib.h>
-#include <sys/stat.h>
+#include <string.h>
 
 #include "ppm.h"
 #include "cli.h"
@@ -14,6 +12,9 @@ int main(int argc, char** argv) {
     const size_t N_COLORS = cli.colors;
     size_t* attractors = malloc(sizeof(size_t) * N);
 
+    size_t buf_size = 128;
+    char* buffer = malloc(12 * buf_size);
+
     for (size_t i = 0; i < N; ++i) {
         attractors[i] = rand() % N_COLORS;
     }
@@ -21,15 +22,12 @@ int main(int argc, char** argv) {
     char* color_scheme = generate_attractor_scheme(N_COLORS);
 
     FILE* out = fopen("precomputed.ppm", "w");
-    struct stat stats;
-    fstat(fileno(out), &stats);
-
-    printf("BUFSIZ is %d, but optimal block size is %ld\n", BUFSIZ, stats.st_blksize);
-
-    setvbuf(out, NULL, _IOFBF, stats.st_blksize);
 
     for (size_t i = 0; i < N; ++i) {
-        fwrite(color_scheme + attractors[i] * 12, sizeof(char), 12, out);
+        memcpy(buffer + 12 * (i % buf_size), color_scheme + attractors[i] * 12, 12);
+        if ((i + 1) % buf_size == 0) {
+            fwrite(buffer, sizeof(char), 12 * buf_size, out);
+        }
     }
 
     free(attractors);
