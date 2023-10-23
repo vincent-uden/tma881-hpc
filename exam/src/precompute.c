@@ -12,7 +12,7 @@ int main(int argc, char** argv) {
     const size_t N_COLORS = cli.colors;
     size_t* attractors = malloc(sizeof(size_t) * N);
 
-    size_t buf_size = 128;
+    size_t buf_size = 10000;
     char* buffer = malloc(12 * buf_size);
 
     for (size_t i = 0; i < N; ++i) {
@@ -22,6 +22,7 @@ int main(int argc, char** argv) {
     char* color_scheme = generate_attractor_scheme(N_COLORS);
 
     FILE* out = fopen("precomputed.ppm", "w");
+    write_header(out, 10000, 255);
 
     for (size_t i = 0; i < N; ++i) {
         memcpy(buffer + 12 * (i % buf_size), color_scheme + attractors[i] * 12, 12);
